@@ -1,18 +1,31 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Delete } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Activity } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
 import { createProject } from "@/actions/project";
 import { projectSchema, projectStatusEnum } from "@/schemas/project";
 import { Button } from "./ui/button";
-import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "./ui/field";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Checkbox } from "./ui/checkbox";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSeparator,
+  FieldSet,
+} from "./ui/field";
+import { Input } from "./ui/input";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "./ui/input-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Textarea } from "./ui/textarea";
 
 export const Project = () => {
   const form = useForm({
@@ -25,8 +38,18 @@ export const Project = () => {
         sms: false,
         push: false,
       },
+      users: [{ email: "" }],
     },
     resolver: zodResolver(projectSchema),
+  });
+
+  const {
+    fields: users,
+    append: addUser,
+    remove: removeUser,
+  } = useFieldArray({
+    control: form.control,
+    name: "users",
   });
 
   const onSubmit = async (data: z.infer<typeof projectSchema>) => {
@@ -43,7 +66,7 @@ export const Project = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto mt-8 p-8 shadow-lg rounded-lg border min-h-96 w-full">
+    <div className="max-w-xl mx-auto p-8 shadow-lg rounded-lg border-2 w-full">
       <h4 className="text-center text-xl font-medium ">Project</h4>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <FieldGroup>
@@ -103,7 +126,7 @@ export const Project = () => {
 
           <FieldSet>
             <FieldContent>
-              <FieldLegend>Notifications</FieldLegend>
+              <FieldLegend variant="label">Notifications</FieldLegend>
               <FieldDescription>Receive notifications for project updates.</FieldDescription>
             </FieldContent>
             <FieldGroup data-slot="checkbox-group">
@@ -112,7 +135,13 @@ export const Project = () => {
                 name="notifications.email"
                 render={({ field: { value, onChange, ...field }, fieldState }) => (
                   <Field orientation="horizontal" data-invalid={fieldState.invalid}>
-                    <Checkbox id={field.name} checked={value} onCheckedChange={onChange} {...field} aria-invalid={fieldState.invalid} />
+                    <Checkbox
+                      {...field}
+                      id={field.name}
+                      checked={value}
+                      onCheckedChange={onChange}
+                      aria-invalid={fieldState.invalid}
+                    />
                     <FieldContent>
                       <FieldLabel htmlFor={field.name}>Email</FieldLabel>
                       <Activity mode={fieldState.invalid ? "visible" : "hidden"}>
@@ -127,7 +156,13 @@ export const Project = () => {
                 name="notifications.sms"
                 render={({ field: { value, onChange, ...field }, fieldState }) => (
                   <Field orientation="horizontal" data-invalid={fieldState.invalid}>
-                    <Checkbox id={field.name} checked={value} onCheckedChange={onChange} {...field} aria-invalid={fieldState.invalid} />
+                    <Checkbox
+                      id={field.name}
+                      checked={value}
+                      onCheckedChange={onChange}
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                    />
                     <FieldContent>
                       <FieldLabel htmlFor={field.name}>SMS</FieldLabel>
                       <Activity mode={fieldState.invalid ? "visible" : "hidden"}>
@@ -142,9 +177,15 @@ export const Project = () => {
                 name="notifications.push"
                 render={({ field: { value, onChange, ...field }, fieldState }) => (
                   <Field orientation="horizontal" data-invalid={fieldState.invalid}>
-                    <Checkbox id={field.name} checked={value} onCheckedChange={onChange} {...field} aria-invalid={fieldState.invalid} />
+                    <Checkbox
+                      id={field.name}
+                      checked={value}
+                      onCheckedChange={onChange}
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                    />
                     <FieldContent>
-                      <FieldLabel htmlFor={field.name}>Push</FieldLabel>
+                      <FieldLabel htmlFor={field.name}>In App</FieldLabel>
                       <Activity mode={fieldState.invalid ? "visible" : "hidden"}>
                         <FieldError errors={[fieldState.error]} />
                       </Activity>
@@ -155,7 +196,64 @@ export const Project = () => {
             </FieldGroup>
           </FieldSet>
 
-          <Button type="submit">Create</Button>
+          <FieldSeparator />
+
+          <FieldSet>
+            <div className="flex gap-2 items-center justify-between">
+              <FieldContent>
+                <FieldLegend variant="label" className="mb-0">
+                  User Email Address
+                </FieldLegend>
+                <FieldDescription>Assign up to 5 users to this project (including yourself).</FieldDescription>
+                <Activity mode={form.formState.errors.users?.root ? "visible" : "hidden"}>
+                  <FieldError errors={[form.formState.errors.users?.root]} />
+                </Activity>
+              </FieldContent>
+              <Button variant="outline" size="sm" onClick={() => addUser({ email: "" })}>
+                Add User
+              </Button>
+            </div>
+            <FieldGroup>
+              {users.map((user, index) => (
+                <Controller
+                  key={user.id}
+                  control={form.control}
+                  name={`users.${index}.email`}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <InputGroup>
+                        <InputGroupInput
+                          type="email"
+                          id={field.name}
+                          {...field}
+                          aria-label={`User ${index + 1} Email`}
+                          aria-invalid={fieldState.invalid}
+                        />
+                        <InputGroupAddon align="inline-end">
+                          <InputGroupButton
+                            type="button"
+                            variant="destructive"
+                            size="icon-xs"
+                            onClick={() => removeUser(index)}
+                            aria-label={`Remove User ${index + 1}`}
+                          >
+                            <HugeiconsIcon icon={Delete} />
+                          </InputGroupButton>
+                        </InputGroupAddon>
+                      </InputGroup>
+                      <Activity mode={fieldState.invalid ? "visible" : "hidden"}>
+                        <FieldError errors={[fieldState.error]} />
+                      </Activity>
+                    </Field>
+                  )}
+                />
+              ))}
+            </FieldGroup>
+          </FieldSet>
+
+          <Button type="submit" className="hover:bg-green-800">
+            Create
+          </Button>
         </FieldGroup>
       </form>
     </div>

@@ -17,4 +17,8 @@ export const projectSchema = z.object({
     sms: z.boolean(),
     push: z.boolean(),
   }),
+  users: z
+    .array(z.object({ email: z.email() }))
+    .min(1, { error: "At least one user must be assigned to the project." })
+    .max(5, { error: "Maximum of 5 users can be assigned to the project." }),
 });
