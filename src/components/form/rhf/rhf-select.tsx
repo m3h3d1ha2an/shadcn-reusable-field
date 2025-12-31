@@ -4,16 +4,16 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { FormBaseProps } from "@/types/form";
 
-export type FormSelectProps<FormValues extends FieldValues> = FormBaseProps<FormValues> & {
+export type RHFSelectProps<FormValues extends FieldValues> = FormBaseProps<FormValues> & {
   children: React.ReactNode;
 };
 
-export const FormSelect = <FormValues extends FieldValues>({
+export const RHFSelect = <FormValues extends FieldValues>({
   name,
   label,
   control,
   children,
-}: FormSelectProps<FormValues>) => {
+}: RHFSelectProps<FormValues>) => {
   return (
     <Controller
       control={control}

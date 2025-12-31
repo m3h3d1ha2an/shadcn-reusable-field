@@ -9,10 +9,10 @@ import { toast } from "sonner";
 import type z from "zod";
 import { createProject } from "@/actions/project";
 import { projectSchema, projectStatusEnum } from "@/schemas/project";
-import { FormCheckbox } from "./form/rhf/form-checkbox";
-import { FormInput } from "./form/rhf/form-input";
-import { FormSelect } from "./form/rhf/form-select";
-import { FormTextArea } from "./form/rhf/form-textarea";
+import { RHFCheckbox } from "./form/rhf/rhf-checkbox";
+import { RHFInput } from "./form/rhf/rhf-input";
+import { RHFSelect } from "./form/rhf/rhf-select";
+import { RHFTextArea } from "./form/rhf/rhf-textarea";
 import { Button } from "./ui/button";
 import {
   Field,
@@ -27,7 +27,7 @@ import {
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "./ui/input-group";
 import { SelectItem } from "./ui/select";
 
-export const Project = () => {
+export const ProjectRHFReusable = () => {
   const form = useForm({
     defaultValues: {
       name: "",
@@ -67,20 +67,20 @@ export const Project = () => {
 
   return (
     <div className="max-w-xl mx-auto p-8 shadow-lg rounded-lg border-2 w-full">
-      <h4 className="text-center text-xl font-medium ">Project</h4>
+      <h4 className="text-center text-xl font-medium ">Reusable</h4>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <FieldGroup>
-          <FormInput control={form.control} name="name" label="Name" />
+          <RHFInput control={form.control} name="name" label="Name" />
 
-          <FormSelect control={form.control} name="status" label="Status">
+          <RHFSelect control={form.control} name="status" label="Status">
             {projectStatusEnum.map((status) => (
               <SelectItem key={status} value={status}>
                 {status}
               </SelectItem>
             ))}
-          </FormSelect>
+          </RHFSelect>
 
-          <FormTextArea control={form.control} name="description" label="Description" />
+          <RHFTextArea control={form.control} name="description" label="Description" />
 
           <FieldSet>
             <FieldContent>
@@ -88,9 +88,9 @@ export const Project = () => {
               <FieldDescription>Receive notifications for project updates.</FieldDescription>
             </FieldContent>
             <FieldGroup data-slot="checkbox-group">
-              <FormCheckbox name="notifications.email" label="Email" control={form.control} />
-              <FormCheckbox name="notifications.sms" label="Text" control={form.control} />
-              <FormCheckbox name="notifications.push" label="In App" control={form.control} />
+              <RHFCheckbox name="notifications.email" label="Email" control={form.control} />
+              <RHFCheckbox name="notifications.sms" label="Text" control={form.control} />
+              <RHFCheckbox name="notifications.push" label="In App" control={form.control} />
             </FieldGroup>
           </FieldSet>
           <FieldSeparator />

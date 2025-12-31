@@ -4,9 +4,9 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import type { FormBaseProps } from "@/types/form";
 
-type FormInputProps<FormValues extends FieldValues> = FormBaseProps<FormValues>;
+type RHFInputProps<FormValues extends FieldValues> = FormBaseProps<FormValues>;
 
-export const FormInput = <FormValues extends FieldValues>({ name, label, control }: FormInputProps<FormValues>) => {
+export const RHFInput = <FormValues extends FieldValues>({ name, label, control }: RHFInputProps<FormValues>) => {
   return (
     <Controller
       control={control}

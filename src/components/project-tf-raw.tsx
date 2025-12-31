@@ -26,7 +26,7 @@ import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 
-export const Project = () => {
+export const ProjectTFRaw = () => {
   const form = useForm({
     defaultValues: {
       name: "",
@@ -68,7 +68,7 @@ export const Project = () => {
 
   return (
     <div className="max-w-xl mx-auto p-8 shadow-lg rounded-lg border-2 w-full">
-      <h4 className="text-center text-xl font-medium ">Project</h4>
+      <h4 className="text-center text-xl font-medium ">Raw</h4>
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -256,7 +256,12 @@ export const Project = () => {
                         <FieldError errors={field.state.meta.errors} />
                       </Activity>
                     </FieldContent>
-                    <Button variant="outline" size="sm" onClick={() => field.pushValue({ email: "" })}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => field.pushValue({ email: "" })}
+                      disabled={field.state.value.length >= 5}
+                    >
                       Add User
                     </Button>
                   </div>
@@ -284,10 +289,11 @@ export const Project = () => {
                                   <InputGroupAddon align="inline-end">
                                     <InputGroupButton
                                       type="button"
-                                      variant="destructive"
+                                      variant="ghost"
                                       size="icon-xs"
                                       onClick={() => field.removeValue(index)}
                                       aria-label={`Remove User ${index + 1}`}
+                                      className="hover:text-destructive"
                                     >
                                       <HugeiconsIcon icon={X} />
                                     </InputGroupButton>

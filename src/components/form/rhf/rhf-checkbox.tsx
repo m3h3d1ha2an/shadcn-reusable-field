@@ -4,13 +4,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldContent, FieldError, FieldLabel } from "@/components/ui/field";
 import type { FormBaseProps } from "@/types/form";
 
-type FormCheckboxProps<FormValues extends FieldValues> = FormBaseProps<FormValues>;
+type RHFCheckboxProps<FormValues extends FieldValues> = FormBaseProps<FormValues>;
 
-export const FormCheckbox = <FormValues extends FieldValues>({
-  name,
-  label,
-  control,
-}: FormCheckboxProps<FormValues>) => {
+export const RHFCheckbox = <FormValues extends FieldValues>({ name, label, control }: RHFCheckboxProps<FormValues>) => {
   return (
     <Controller
       control={control}

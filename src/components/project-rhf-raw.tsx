@@ -27,7 +27,7 @@ import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 
-export const ProjectRaw = () => {
+export const ProjectRHFRaw = () => {
   const form = useForm({
     defaultValues: {
       name: "",
@@ -67,7 +67,7 @@ export const ProjectRaw = () => {
 
   return (
     <div className="max-w-xl mx-auto p-8 shadow-lg rounded-lg border-2 w-full">
-      <h4 className="text-center text-xl font-medium ">Project</h4>
+      <h4 className="text-center text-xl font-medium ">Raw</h4>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <FieldGroup>
           <Controller
@@ -116,13 +116,7 @@ export const ProjectRaw = () => {
                   <FieldLabel htmlFor={field.name}>Description</FieldLabel>
                   <FieldDescription>Be specific and concise as possible.</FieldDescription>
                 </FieldContent>
-                <Textarea
-                  id={field.name}
-                  {...field}
-                  aria-invalid={fieldState.invalid}
-                  rows={6}
-                  className="min-h-24 resize-none"
-                />
+                <Textarea id={field.name} {...field} aria-invalid={fieldState.invalid} />
                 <Activity mode={fieldState.invalid ? "visible" : "hidden"}>
                   <FieldError errors={[fieldState.error]} />
                 </Activity>

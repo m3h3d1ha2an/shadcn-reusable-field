@@ -4,16 +4,16 @@ import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from "@
 import { Textarea } from "@/components/ui/textarea";
 import type { FormBaseProps } from "@/types/form";
 
-export type FormTextAreaProps<FormValues extends FieldValues> = FormBaseProps<FormValues> & {
+export type RHFTextAreaProps<FormValues extends FieldValues> = FormBaseProps<FormValues> & {
   description?: string;
 };
 
-export const FormTextArea = <FormValues extends FieldValues>({
+export const RHFTextArea = <FormValues extends FieldValues>({
   name,
   label,
   description,
   control,
-}: FormTextAreaProps<FormValues>) => {
+}: RHFTextAreaProps<FormValues>) => {
   return (
     <Controller
       control={control}
