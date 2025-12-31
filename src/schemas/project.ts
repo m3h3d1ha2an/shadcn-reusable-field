@@ -22,3 +22,7 @@ export const projectSchema = z.object({
     .min(1, { error: "At least one user must be assigned to the project." })
     .max(5, { error: "Maximum of 5 users can be assigned to the project." }),
 });
+
+export const projectTanstackSchema = projectSchema.extend({
+  description: z.string().transform((value) => value || undefined),
+});

@@ -20,9 +20,13 @@
     "rules": {
       "recommended": true,
       "suspicious": {
-        "noUnknownAtRules": "off"
+        "noUnknownAtRules": "off",
+        "noArrayIndexKey": "off"
       },
-      "a11y": "off"
+      "a11y": "off",
+      "correctness": {
+        "noChildrenProp": "off"
+      }
     },
     "domains": {
       "next": "recommended",

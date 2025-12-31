@@ -116,7 +116,13 @@ export const ProjectRaw = () => {
                   <FieldLabel htmlFor={field.name}>Description</FieldLabel>
                   <FieldDescription>Be specific and concise as possible.</FieldDescription>
                 </FieldContent>
-                <Textarea id={field.name} {...field} aria-invalid={fieldState.invalid} />
+                <Textarea
+                  id={field.name}
+                  {...field}
+                  aria-invalid={fieldState.invalid}
+                  rows={6}
+                  className="min-h-24 resize-none"
+                />
                 <Activity mode={fieldState.invalid ? "visible" : "hidden"}>
                   <FieldError errors={[fieldState.error]} />
                 </Activity>

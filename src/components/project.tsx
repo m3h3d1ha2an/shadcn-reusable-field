@@ -1,28 +1,30 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Delete } from "@hugeicons/core-free-icons";
+import { X } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { useForm } from "@tanstack/react-form";
 import { Activity } from "react";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type z from "zod";
 import { createProject } from "@/actions/project";
-import { projectSchema, projectStatusEnum } from "@/schemas/project";
-import { FormCheckbox, FormInput, FormSelect, FormTextArea } from "./form/reusable-fields";
+import { projectStatusEnum, projectTanstackSchema } from "@/schemas/project";
 import { Button } from "./ui/button";
+import { Checkbox } from "./ui/checkbox";
 import {
   Field,
   FieldContent,
   FieldDescription,
   FieldError,
   FieldGroup,
+  FieldLabel,
   FieldLegend,
   FieldSeparator,
   FieldSet,
 } from "./ui/field";
+import { Input } from "./ui/input";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "./ui/input-group";
-import { SelectItem } from "./ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Textarea } from "./ui/textarea";
 
 export const Project = () => {
   const form = useForm({
@@ -36,48 +38,123 @@ export const Project = () => {
         push: false,
       },
       users: [{ email: "" }],
+    } satisfies z.infer<typeof projectTanstackSchema> as z.infer<typeof projectTanstackSchema>,
+    validators: {
+      onSubmit: projectTanstackSchema,
     },
-    resolver: zodResolver(projectSchema),
+    onSubmit: async ({ value }) => {
+      const result = await createProject(value);
+      if (result.success) {
+        form.reset();
+        toast.success("Project created successfully", {
+          description: (
+            <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
+              <code>{JSON.stringify(value, null, 2)}</code>
+            </pre>
+          ),
+          position: "bottom-right",
+          classNames: {
+            content: "flex flex-col gap-2",
+          },
+          style: {
+            "--border-radius": "calc(var(--radius)  + 4px)",
+          } as React.CSSProperties,
+        });
+      } else {
+        toast.error("Failed to create project");
+      }
+    },
   });
-
-  const {
-    fields: users,
-    append: addUser,
-    remove: removeUser,
-  } = useFieldArray({
-    control: form.control,
-    name: "users",
-  });
-
-  const onSubmit = async (data: z.infer<typeof projectSchema>) => {
-    const result = await createProject(data);
-    if (result.success) {
-      form.reset();
-      toast.success("Project created successfully", {
-        description: JSON.stringify(data, null, 2),
-        className: "whitespace-pre-wrap font-mono",
-      });
-    } else {
-      toast.error("Failed to create project");
-    }
-  };
 
   return (
     <div className="max-w-xl mx-auto p-8 shadow-lg rounded-lg border-2 w-full">
       <h4 className="text-center text-xl font-medium ">Project</h4>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          form.handleSubmit();
+        }}
+      >
         <FieldGroup>
-          <FormInput control={form.control} name="name" label="Name" />
-
-          <FormSelect control={form.control} name="status" label="Status">
-            {projectStatusEnum.map((status) => (
-              <SelectItem key={status} value={status}>
-                {status}
-              </SelectItem>
-            ))}
-          </FormSelect>
-
-          <FormTextArea control={form.control} name="description" label="Description" />
+          <form.Field
+            name="name"
+            children={(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    aria-invalid={isInvalid}
+                  />
+                  <Activity mode={isInvalid ? "visible" : "hidden"}>
+                    <FieldError errors={field.state.meta.errors} />
+                  </Activity>
+                </Field>
+              );
+            }}
+          />
+          <form.Field
+            name="status"
+            children={(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Status</FieldLabel>
+                  <Select
+                    name={field.name}
+                    value={field.state.value}
+                    onValueChange={(value) => value && field.handleChange(value)}
+                  >
+                    <SelectTrigger id={field.name} onBlur={field.handleBlur} aria-invalid={isInvalid}>
+                      <SelectValue className="capitalize" />
+                    </SelectTrigger>
+                    <SelectContent className="p-2">
+                      {projectStatusEnum.map((status) => (
+                        <SelectItem key={status} value={status} className="capitalize">
+                          {status}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Activity mode={isInvalid ? "visible" : "hidden"}>
+                    <FieldError errors={field.state.meta.errors} />
+                  </Activity>
+                </Field>
+              );
+            }}
+          />
+          <form.Field
+            name="description"
+            children={(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldContent>
+                    <FieldLabel htmlFor={field.name}>Description</FieldLabel>
+                    <FieldDescription>Be specific and concise as possible.</FieldDescription>
+                  </FieldContent>
+                  <Textarea
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    aria-invalid={isInvalid}
+                    rows={6}
+                    className="min-h-24 resize-none"
+                  />
+                  <Activity mode={isInvalid ? "visible" : "hidden"}>
+                    <FieldError errors={field.state.meta.errors} />
+                  </Activity>
+                </Field>
+              );
+            }}
+          />
 
           <FieldSet>
             <FieldContent>
@@ -85,64 +162,151 @@ export const Project = () => {
               <FieldDescription>Receive notifications for project updates.</FieldDescription>
             </FieldContent>
             <FieldGroup data-slot="checkbox-group">
-              <FormCheckbox name="notifications.email" label="Email" control={form.control} />
-              <FormCheckbox name="notifications.sms" label="Text" control={form.control} />
-              <FormCheckbox name="notifications.push" label="In App" control={form.control} />
-            </FieldGroup>
-          </FieldSet>
-          <FieldSeparator />
-          <FieldSet>
-            <div className="flex gap-2 items-center justify-between">
-              <FieldContent>
-                <FieldLegend variant="label" className="mb-0">
-                  User Email Address
-                </FieldLegend>
-                <FieldDescription>Assign up to 5 users to this project (including yourself).</FieldDescription>
-                <Activity mode={form.formState.errors.users?.root ? "visible" : "hidden"}>
-                  <FieldError errors={[form.formState.errors.users?.root]} />
-                </Activity>
-              </FieldContent>
-              <Button variant="outline" size="sm" onClick={() => addUser({ email: "" })}>
-                Add User
-              </Button>
-            </div>
-            <FieldGroup>
-              {users.map((user, index) => (
-                <Controller
-                  key={user.id}
-                  control={form.control}
-                  name={`users.${index}.email`}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <InputGroup>
-                        <InputGroupInput
-                          type="email"
-                          id={field.name}
-                          {...field}
-                          aria-label={`User ${index + 1} Email`}
-                          aria-invalid={fieldState.invalid}
-                        />
-                        <InputGroupAddon align="inline-end">
-                          <InputGroupButton
-                            type="button"
-                            variant="destructive"
-                            size="icon-xs"
-                            onClick={() => removeUser(index)}
-                            aria-label={`Remove User ${index + 1}`}
-                          >
-                            <HugeiconsIcon icon={Delete} />
-                          </InputGroupButton>
-                        </InputGroupAddon>
-                      </InputGroup>
-                      <Activity mode={fieldState.invalid ? "visible" : "hidden"}>
-                        <FieldError errors={[fieldState.error]} />
-                      </Activity>
+              <form.Field
+                name="notifications.email"
+                children={(field) => {
+                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field orientation="horizontal" data-invalid={isInvalid}>
+                      <Checkbox
+                        id={field.name}
+                        name={field.name}
+                        onBlur={field.handleBlur}
+                        checked={field.state.value}
+                        onCheckedChange={(checked) => field.handleChange(checked === true)}
+                        aria-invalid={isInvalid}
+                      />
+                      <FieldContent>
+                        <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                        <Activity mode={isInvalid ? "visible" : "hidden"}>
+                          <FieldError errors={field.state.meta.errors} />
+                        </Activity>
+                      </FieldContent>
                     </Field>
-                  )}
-                />
-              ))}
+                  );
+                }}
+              />
+              <form.Field
+                name="notifications.sms"
+                children={(field) => {
+                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field orientation="horizontal" data-invalid={isInvalid}>
+                      <Checkbox
+                        id={field.name}
+                        name={field.name}
+                        onBlur={field.handleBlur}
+                        checked={field.state.value}
+                        onCheckedChange={(checked) => field.handleChange(checked === true)}
+                        aria-invalid={isInvalid}
+                      />
+                      <FieldContent>
+                        <FieldLabel htmlFor={field.name}>Text</FieldLabel>
+                        <Activity mode={isInvalid ? "visible" : "hidden"}>
+                          <FieldError errors={field.state.meta.errors} />
+                        </Activity>
+                      </FieldContent>
+                    </Field>
+                  );
+                }}
+              />
+              <form.Field
+                name="notifications.push"
+                children={(field) => {
+                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field orientation="horizontal" data-invalid={isInvalid}>
+                      <Checkbox
+                        id={field.name}
+                        name={field.name}
+                        onBlur={field.handleBlur}
+                        checked={field.state.value}
+                        onCheckedChange={(checked) => field.handleChange(checked === true)}
+                        aria-invalid={isInvalid}
+                      />
+                      <FieldContent>
+                        <FieldLabel htmlFor={field.name}>In App</FieldLabel>
+                        <Activity mode={isInvalid ? "visible" : "hidden"}>
+                          <FieldError errors={field.state.meta.errors} />
+                        </Activity>
+                      </FieldContent>
+                    </Field>
+                  );
+                }}
+              />
             </FieldGroup>
           </FieldSet>
+
+          <FieldSeparator />
+
+          <form.Field
+            name="users"
+            mode="array"
+            children={(field) => {
+              const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+              return (
+                <FieldSet>
+                  <div className="flex gap-2 items-center justify-between">
+                    <FieldContent>
+                      <FieldLegend variant="label" className="mb-0">
+                        User Email Address
+                      </FieldLegend>
+                      <FieldDescription>Assign up to 5 users to this project (including yourself).</FieldDescription>
+                      <Activity mode={isInvalid ? "visible" : "hidden"}>
+                        <FieldError errors={field.state.meta.errors} />
+                      </Activity>
+                    </FieldContent>
+                    <Button variant="outline" size="sm" onClick={() => field.pushValue({ email: "" })}>
+                      Add User
+                    </Button>
+                  </div>
+                  <FieldGroup>
+                    {field.state.value.map((_, index) => (
+                      <form.Field
+                        key={index}
+                        name={`users[${index}].email`}
+                        children={(subField) => {
+                          const isSubFieldInvalid = subField.state.meta.isTouched && !subField.state.meta.isValid;
+                          return (
+                            <Field data-invalid={isSubFieldInvalid}>
+                              <InputGroup>
+                                <InputGroupInput
+                                  type="email"
+                                  id={field.name}
+                                  name={subField.name}
+                                  value={subField.state.value}
+                                  onBlur={subField.handleBlur}
+                                  onChange={(e) => subField.handleChange(e.target.value)}
+                                  aria-label={`User ${index + 1} Email`}
+                                  aria-invalid={isSubFieldInvalid}
+                                />
+                                <Activity mode={field.state.value.length > 1 ? "visible" : "hidden"}>
+                                  <InputGroupAddon align="inline-end">
+                                    <InputGroupButton
+                                      type="button"
+                                      variant="destructive"
+                                      size="icon-xs"
+                                      onClick={() => field.removeValue(index)}
+                                      aria-label={`Remove User ${index + 1}`}
+                                    >
+                                      <HugeiconsIcon icon={X} />
+                                    </InputGroupButton>
+                                  </InputGroupAddon>
+                                </Activity>
+                              </InputGroup>
+                              <Activity mode={isSubFieldInvalid ? "visible" : "hidden"}>
+                                <FieldError errors={subField.state.meta.errors} />
+                              </Activity>
+                            </Field>
+                          );
+                        }}
+                      />
+                    ))}
+                  </FieldGroup>
+                </FieldSet>
+              );
+            }}
+          />
 
           <Button type="submit" className="hover:bg-green-800">
             Create
